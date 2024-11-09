@@ -1,115 +1,269 @@
-import Image from "next/image";
-import localFont from "next/font/local";
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+import Assetlink from "@/component/Assetlink";
+import Loading from "@/component/Loading";
+import { useEffect, useState } from "react";
 
 export default function Home() {
-  return (
-    <div
-      className={`${geistSans.variable} ${geistMono.variable} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/pages/index.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  const [weatherData, setWeatherData] = useState([]);
+
+  const [timeWeatherData, setTimeWeatherData] = useState('')
+
+  const [loading, isLoading] = useState(false)
+
+  const apiKey = process.env.WEATHER_API_KEY;
+
+  const [search, setSearch] = useState('Indonesia');
+
+
+  const handleSearch = (event) => {
+    setSearch(event.target.value)
+  }
+
+  const [submit, setSubmit] = useState('')
+  
+  const handleEnter = (event) => {
+    if (event?.key == 'Enter'){
+      event.prefentDefault
+     
+      setSubmit(search)
+      
+    }
+
+  }
+
+
+
+  
+  useEffect (() => {
+    const fetchWeather = async () => {
+      
+      isLoading(true)
+      
+      try {
+        const [responseDataWeather, responseTimeWeather] = await Promise.all([
+          fetch(`http://api.weatherapi.com/v1/current.json?key=2a246c76318f49fb8db74406242710&q=${search}&aqi=yes`),
+          fetch(`http://api.weatherapi.com/v1/history.json?key=2a246c76318f49fb8db74406242710&q=${search}&dt=${new Date().toISOString().slice(0, 10)}`)
+        ]) 
+        
+        const dataWeather = await responseDataWeather.json();
+        const timeWeather = await responseTimeWeather.json();
+
+        setWeatherData(dataWeather);
+
+        setTimeWeatherData(timeWeather)
+
+      } catch(error) {
+        console.error("Error fetching weather data: ",error);
+      }finally{
+        isLoading(false)
+      }
+      
+    };
+    
+    if(search){
+      
+      fetchWeather();
+    }
+    
+    
+  }, [submit]);
+
+
+  
+
+  //console.log('ini dari time weather  ++++ ',fetchTimeWeather())
+  
+
+//  if (loading) return(<>
+
+
+// <Loading/>
+
+ 
+//  </>);
+
+ 
+ //        ih ada symbol derajat                °
+    
+ 
+ console.log(timeWeatherData.forecast)
+
+   return (<>
+
+  <Assetlink/>  
+ 
+    <div className="bg-gradient-to-b from-blue-900 to-black ">
+
+
+    <div class="flex items-center border-b border-white m-auto text-white bg-transparent w-full max-w-md pt-4">
+    <i class="fa-solid fa-magnifying-glass text-white px-2"></i>
+    <input type="text" value={search} onChange={handleSearch} onKeyDown={handleEnter} placeholder="Search for Cities" class="bg-transparent outline-none flex-1 py-2 text-white placeholder-white"/>
     </div>
-  );
+
+    <div className="grid grid-cols-1 lg:grid-cols-2 text-center justify-center items-center lg:text-left">
+      <div className=" grid-cols-1 py-10 px-52">
+        <p className=" text-4xl font-bold">
+          {weatherData.location?.country}
+        </p>
+        <p className="">
+          {weatherData.location?.name}, {weatherData.location?.region}
+        </p>
+        <img className="flex m-auto lg:m-0 lg:grid" src={weatherData.current?.condition.icon}></img>
+        <p className="px-2">{weatherData.current?.condition.text}</p>
+      </div>
+      
+      <div className="flex flex-col items-center py-10">
+  
+      <h1 className="text-9xl font-light">{weatherData.current?.temp_c}<span className="text-9xl font-extralight">°C</span></h1>
+      <br></br>
+        <p>
+          {weatherData.location?.localtime.slice(10, 100)}
+        </p>
+        <p>
+          {weatherData.location?.localtime.slice(0, 10)}
+        </p>
+      
+      </div>
+
+      <div>
+
+      </div>
+
+      <div className="px-52 flex m-auto text-2xl font-bold pb-5">
+      
+      </div>
+      
+    </div>
+
+    <div className="p-10 mx-16 rounded-xl glass">
+
+    <div className="grid grid-cols-1 font-semibold">
+
+      <p>TODAY FORECAST</p>
+    </div>
+    <div className="grid grid-cols-2 p-10 gap-10 text-center lg:grid-cols-7 md:grid-cols-4 sm:grid-cols-2 lg:gap-2 md:gap-4">
+
+
+      <div className="border-r">
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[0].time.slice(11, 100)}</p>
+      <img src={timeWeatherData.forecast?.forecastday[0].hour[0].condition.icon} className="w-2/4 h-auto flex m-auto"></img>
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[0].temp_c}°</p>
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[0].condition.text}</p>
+      </div>
+      <div className="border-r">
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[4].time.slice(11, 100)}</p>
+      <img src={timeWeatherData.forecast?.forecastday[0].hour[4].condition.icon} className="w-2/4 h-auto flex m-auto"></img>
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[4].temp_c}°</p>
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[4].condition.text}</p>
+      </div>
+      <div className="border-r">
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[8].time.slice(11, 100)}</p>
+      <img src={timeWeatherData.forecast?.forecastday[0].hour[8].condition.icon} className="w-2/4 h-auto flex m-auto"></img>
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[8].temp_c}°</p>
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[8].condition.text}</p>
+      </div>
+      <div className="border-r">
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[12].time.slice(11, 100)}</p>
+      <img src={timeWeatherData.forecast?.forecastday[0].hour[12].condition.icon} className="w-2/4 h-auto flex m-auto"></img>
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[12].temp_c}°</p>
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[12].condition.text}</p>
+      </div>
+      <div className="border-r">
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[16].time.slice(11, 100)}</p>
+      <img src={timeWeatherData.forecast?.forecastday[0].hour[16].condition.icon} className="w-2/4 h-auto flex m-auto"></img>
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[16].temp_c}°</p>
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[16].condition.text}</p>
+      </div>
+      <div className="border-r">
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[20].time.slice(11, 100)}</p>
+      <img src={timeWeatherData.forecast?.forecastday[0].hour[20].condition.icon} className="w-2/4 h-auto flex m-auto"></img>
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[20].temp_c}°</p>
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[20].condition.text}</p>
+      </div>
+      <div className="">
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[23]?.time.slice(11, 100)}</p>
+      <img src={timeWeatherData.forecast?.forecastday[0].hour[23]?.condition.icon} className="w-2/4 h-auto flex m-auto"></img>
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[23]?.temp_c}°</p>
+      <p>{timeWeatherData.forecast?.forecastday[0].hour[23]?.condition.text}</p>
+      </div>
+     
+      
+
+    </div>
+
+    </div>
+    <br></br>
+
+    <div className="rounded-xl p-10 mx-16 glass font-semibold text-xl">
+      <div>
+        <p>
+          AIR CODITIONS
+        </p>
+      </div>
+
+
+      <div className="grid grid-cols-1 p-10 gap-10 lg:grid-cols-2 lg:gap-10 md:grid-cols-2 md:gap-10 ">
+
+        <div>
+          <p>
+          <i class="fa-solid fa-temperature-half"></i> Reel Feel
+            </p>
+            <p className="text-5xl lg:text-7xl md:text-7xl">
+
+          {weatherData.current?.feelslike_c}°
+            </p>
+        </div>
+
+        <div>
+        <p>
+          
+        <i class="fa-solid fa-wind"></i> 
+        Wind
+        </p>
+          <p className="text-5xl lg:text-7xl md:text-7xl">
+            {weatherData.current?.wind_mph} KM/H</p>
+        </div>
+
+        <div>
+          <p>
+          <i class="fa-solid fa-cloud"></i>Cloud</p>
+         
+         <p className="text-5xl lg:text-7xl md:text-7xl">
+
+          {weatherData.current?.cloud}%
+         </p>
+        </div>
+
+        <div>
+         <p>
+         <i class="fa-solid fa-cloud-sun"></i>
+          UV index
+         </p>
+          <p className="text-5xl lg:text-7xl md:text-7xl">
+
+          {weatherData.current?.uv}
+          </p>
+        </div>
+      </div>
+    
+
+    
+      
+    </div>
+
+
+    <div className="p-10">
+
+    </div>
+
+
+    </div>
+
+
+
+  
+
+</>)
+
+
 }

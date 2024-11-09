@@ -2,20 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  
+  /* font-family: Arial, Helvetica, sans-serif; */
+
+  font-family: Lato;
+
+
+  color: white;
 }
+
+.glass {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.25),
+    rgba(255, 255, 255, 0.001)
+  ); /* Gradien putih transparan */
+  backdrop-filter: blur(15px) saturate(150%); /* Blur dan saturasi untuk efek kaca */
+  -webkit-backdrop-filter: blur(15px) saturate(150%);
+ 
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); /* Bayangan yang lebih halus */
+ 
+}
+
+/* Untuk browser berbasis Webkit (Chrome, Safari, dll.) */
+::-webkit-scrollbar {
+  width: 8px; /* Lebar scroll bar */
+  height: 8px; /* Tinggi scroll bar untuk scroll horizontal */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #888; /* Warna thumb (bagian yang bisa digeser) */
+  border-radius: 4px; /* Radius untuk membuat ujungnya melengkung */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #555; /* Warna thumb saat di-hover */
+}
+
+::-webkit-scrollbar-track {
+  background-color: #2e2e2e; /* Warna track (latar scroll bar) */
+}
+
